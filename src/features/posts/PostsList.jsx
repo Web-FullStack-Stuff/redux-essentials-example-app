@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import classnames from 'classnames'
 
 import { PostAuthor } from './PostAuthor'
 import { TimeAgo } from './TimeAgo'
@@ -35,11 +34,9 @@ export const PostsList = () => {
   const {
     data: posts = [], /**We'll also want to give posts a default empty array in case it's undefined */
     isLoading,
-    isFetching,
     isSuccess,
     isError,
-    error,
-    refetch
+    error
   } = useGetPostsQuery()
 
   /**To avoid re-sorting on every rerender, we can do the sorting in a useMemo() hook */
@@ -55,13 +52,9 @@ export const PostsList = () => {
   if (isLoading) {
     content = <Spinner text="Loading..." />
   } else if (isSuccess) {
-    const renderedPosts = sortedPosts.map((post) => (
+    content = sortedPosts.map((post) => (
       <PostExcerpt key={post.id} post={post} />
     ))
-    const containerClassname = classnames('posts-container', {
-      disable: isFetching
-    })
-    content = <div className={containerClassname}>{renderedPosts}</div>
   } else if (isError) {
     content = <div>{error.toString()}</div>
   }
@@ -69,7 +62,6 @@ export const PostsList = () => {
   return (
     <section className="posts-list">
       <h2>Posts</h2>
-      <button onClick={refetch}>Refetch Posts</button>
       {content}
     </section>
   )
