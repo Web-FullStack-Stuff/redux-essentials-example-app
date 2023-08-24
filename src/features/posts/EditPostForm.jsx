@@ -1,51 +1,34 @@
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { postUpdated, selectPostById } from './postsSlice'
-import { selectAllUsers } from '../users/usersSlice'
+import { Spinner } from '../../components/Spinner'
+import { useGetPostQuery, useEditPostMutation } from '../api/apiSlice'
 
 export const EditPostForm = () => {
   const { postId } = useParams()
 
-  const post = useSelector((state) =>
-    selectPostById(state, postId)
-  )
-  const users = useSelector(selectAllUsers)
+  const {data: post} = useGetPostQuery(postId)
+  const [updatePost, {isLoading}] = useEditPostMutation()
 
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
-  const [userId, setUserId] = useState(post.user)
 
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const onTitleChanged = (e) => setTitle(e.target.value)
   const onContentChanged = (e) => setContent(e.target.value)
-  const onAuthorChanged = (e) => setUserId(e.target.value)
 
-  const onSavePostClicked = (e) => {
+  const onSavePostClicked = async (e) => {
     e.preventDefault()
     if (title && content) {
-      dispatch(
-        postUpdated({
-          id: postId,
-          title,
-          content,
-          user: userId,
-        }),
-      )
+      await updatePost({id: postId, title, content})
       navigate(`/posts/${postId}`)
     }
   }
 
   const canSave = Boolean(title) && Boolean(content)
 
-  const usersOptions = users.map((user) => (
-    <option key={user.id} value={user.id}>
-      {user.name}
-    </option>
-  ))
+
 
   return (
     <section>
@@ -59,11 +42,6 @@ export const EditPostForm = () => {
           value={title}
           onChange={onTitleChanged}
         />
-        <label htmlFor="postAuthor">Author:</label>
-        <select id="postAuthor" value={userId} onChange={onAuthorChanged}>
-          {!userId && <option value={userId}>{userId}</option>}
-          {usersOptions}
-        </select>
         <label htmlFor="postContent">Content:</label>
         <textarea
           id="postContent"

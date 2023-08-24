@@ -14,10 +14,14 @@ export const apiSlice = createApi({
     getPosts: builder.query({
       // The URL for the request is '/fakeApi/posts'
       query: () => '/posts',
-      providesTags: ['Post'],
+      providesTags: (result = [], error, arg) => [
+        'Post',
+        ...result.map(({ id }) => [{ type: 'Post', id }]),
+      ],
     }),
     getPost: builder.query({
       query: (postId) => `/posts/${postId}`,
+      providesTags: (result, error, arg) => [{ type: 'Post', id: arg }]
     }),
     addNewPost: builder.mutation({
       query: (initialPost) => ({
@@ -33,6 +37,7 @@ export const apiSlice = createApi({
         method: 'PATCH',
         body: post,
       }),
+      invalidatesTags: (result, error, arg) => [{ type: 'Post', id: arg.id }],
     }),
   }),
 })
