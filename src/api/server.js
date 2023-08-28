@@ -191,8 +191,6 @@ export const handlers = [
   }),
 
   rest.post('/fakeApi/posts/:postId/reactions', (req, res, ctx) => {
-    
-
     const postId = req.params.postId
     const reaction = req.body.reaction
     const post = db.post.findFirst({
@@ -235,7 +233,7 @@ export const handlers = [
 ]
 
 export const worker = setupWorker(...handlers)
-// worker.printHandlers() // Optional: nice for debugging to see all available route handlers that will be intercepted
+worker.printHandlers() // Optional: nice for debugging to see all available route handlers that will be intercepted
 
 /* Mock Websocket Setup */
 
