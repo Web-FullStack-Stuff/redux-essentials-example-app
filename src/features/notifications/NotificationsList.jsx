@@ -1,5 +1,4 @@
 import { useLayoutEffect } from 'react'
-
 import { useSelector, useDispatch } from 'react-redux'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 import classnames from 'classnames'
@@ -7,13 +6,15 @@ import classnames from 'classnames'
 import { selectAllUsers } from '../users/usersSlice'
 
 import {
-  selectAllNotifications,
+  useGetNotificationsQuery,
   allNotificationsRead,
+  selectMetadataEntities
 } from './notificationsSlice'
 
 export const NotificationsList = () => {
   const dispatch = useDispatch()
-  const notifications = useSelector(selectAllNotifications)
+  const {data: notifications = []} = useGetNotificationsQuery()
+  const notificationsMetadata = useSelector(selectMetadataEntities)
   const users = useSelector(selectAllUsers)
 
   useLayoutEffect(() => {
@@ -26,9 +27,10 @@ export const NotificationsList = () => {
     const user = users.find((user) => user.id === notification.user) || {
       name: 'Unknown User',
     }
+    const metadata = notificationsMetadata[notification.id]
 
     const notificationClassname = classnames('notification', {
-      new: notification.isNew
+      new: metadata.isNew
     })
 
     return (
